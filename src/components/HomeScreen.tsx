@@ -19,14 +19,14 @@ const HomeScreen = ({ onNavigate }: HomeScreenProps) => {
   ];
 
   return (
-    <div className="p-8 max-w-3xl mx-auto">
+    <div className="p-4 sm:p-8 max-w-3xl mx-auto">
       {/* Greeting */}
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="mb-10">
         <div className="flex items-center gap-2 text-accent mb-2">
           <Sunrise size={18} />
           <span className="text-sm font-body font-medium">Good morning</span>
         </div>
-        <h1 className="font-display text-4xl font-bold tracking-tight text-foreground">
+        <h1 className="font-display text-2xl sm:text-4xl font-bold tracking-tight text-foreground">
           Welcome back, John
         </h1>
       </motion.div>
@@ -36,7 +36,7 @@ const HomeScreen = ({ onNavigate }: HomeScreenProps) => {
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        className="bg-primary text-primary-foreground rounded-2xl p-8 mb-8"
+        className="bg-primary text-primary-foreground rounded-2xl p-5 sm:p-8 mb-6 sm:mb-8"
       >
         <p className="text-xs uppercase tracking-widest font-body opacity-60 mb-4">Verse of the Day</p>
         <p className="font-display text-xl leading-relaxed italic mb-4">
@@ -46,7 +46,7 @@ const HomeScreen = ({ onNavigate }: HomeScreenProps) => {
       </motion.div>
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4">
         {quickActions.map((action, i) => (
           <motion.button
             key={action.id}

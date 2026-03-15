@@ -44,7 +44,7 @@ const PrayerJournal = () => {
   const answered = entries.filter((e) => e.answered);
 
   return (
-    <div className="p-8 max-w-2xl mx-auto">
+    <div className="p-4 sm:p-8 max-w-2xl mx-auto">
       <div className="flex items-center justify-between mb-8">
         <div>
           <h2 className="section-header">Prayer Journal</h2>
