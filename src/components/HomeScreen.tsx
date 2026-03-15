@@ -36,7 +36,7 @@ const HomeScreen = ({ onNavigate }: HomeScreenProps) => {
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        className="bg-primary text-primary-foreground rounded-2xl p-8 mb-8"
+        className="bg-primary text-primary-foreground rounded-2xl p-5 sm:p-8 mb-6 sm:mb-8"
       >
         <p className="text-xs uppercase tracking-widest font-body opacity-60 mb-4">Verse of the Day</p>
         <p className="font-display text-xl leading-relaxed italic mb-4">
