@@ -67,7 +67,7 @@ const CommunityChat = () => {
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="p-6 border-b border-border">
+      <div className="p-4 sm:p-6 border-b border-border">
         <h2 className="section-header">Community</h2>
         <p className="text-sm text-muted-foreground font-body mt-1">Grace Community · General</p>
       </div>

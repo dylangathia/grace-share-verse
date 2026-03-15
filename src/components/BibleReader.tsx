@@ -86,7 +86,7 @@ const BibleReader = () => {
     );
   }
 
-  return <div className="p-8">{content}</div>;
+  return <div className="p-4 sm:p-8">{content}</div>;
 };
 
 export default BibleReader;
