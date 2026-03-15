@@ -19,7 +19,7 @@ const HomeScreen = ({ onNavigate }: HomeScreenProps) => {
   ];
 
   return (
-    <div className="p-8 max-w-3xl mx-auto">
+    <div className="p-4 sm:p-8 max-w-3xl mx-auto">
       {/* Greeting */}
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="mb-10">
         <div className="flex items-center gap-2 text-accent mb-2">
