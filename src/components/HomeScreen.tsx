@@ -46,7 +46,7 @@ const HomeScreen = ({ onNavigate }: HomeScreenProps) => {
       </motion.div>
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4">
         {quickActions.map((action, i) => (
           <motion.button
             key={action.id}

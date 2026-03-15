@@ -1,5 +1,6 @@
 import { useState } from "react";
 import AppSidebar from "@/components/AppSidebar";
+import MobileBottomNav from "@/components/MobileBottomNav";
 import HomeScreen from "@/components/HomeScreen";
 import BibleReader from "@/components/BibleReader";
 import PrayerWall from "@/components/PrayerWall";
@@ -29,8 +30,11 @@ const Index = () => {
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
-      <AppSidebar activeSection={activeSection} onNavigate={setActiveSection} />
-      <main className="flex-1 overflow-y-auto">
+      {/* Sidebar hidden on mobile */}
+      <div className="hidden md:block">
+        <AppSidebar activeSection={activeSection} onNavigate={setActiveSection} />
+      </div>
+      <main className="flex-1 overflow-y-auto pb-16 md:pb-0">
         <AnimatePresence mode="wait">
           <motion.div
             key={activeSection}
@@ -44,6 +48,8 @@ const Index = () => {
           </motion.div>
         </AnimatePresence>
       </main>
+      {/* Bottom nav on mobile */}
+      <MobileBottomNav activeSection={activeSection} onNavigate={setActiveSection} />
     </div>
   );
 };
