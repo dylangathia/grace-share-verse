@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { BookOpen, Heart, MessageCircle, Church, PenLine, Home, ChevronDown, Users } from "lucide-react";
+import { BookOpen, Heart, MessageCircle, Church, PenLine, Home, ChevronDown, Users, Flame, Music, Star } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface AppSidebarProps {
@@ -15,9 +15,14 @@ const churches = [
 const navItems = [
   { id: "home", label: "Home", icon: Home },
   { id: "bible", label: "Bible", icon: BookOpen },
+  { id: "reading-plans", label: "Reading Plans", icon: BookOpen },
   { id: "prayers", label: "Prayer Wall", icon: Heart },
+  { id: "live-prayer", label: "Live Prayer", icon: Flame },
+  { id: "partners", label: "Prayer Partners", icon: Users },
+  { id: "worship", label: "Worship", icon: Music },
+  { id: "milestones", label: "Faith Journey", icon: Star },
   { id: "chat", label: "Community", icon: MessageCircle },
-  { id: "journal", label: "Prayer Journal", icon: PenLine },
+  { id: "journal", label: "Journal", icon: PenLine },
 ];
 
 const AppSidebar = ({ activeSection, onNavigate }: AppSidebarProps) => {
@@ -34,7 +39,7 @@ const AppSidebar = ({ activeSection, onNavigate }: AppSidebarProps) => {
       </div>
 
       {/* Main Nav */}
-      <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-1">
+      <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-0.5">
         {navItems.map((item) => (
           <button
             key={item.id}
