@@ -11,7 +11,7 @@ interface Milestone {
   isPublic: boolean;
 }
 
-const iconMap: Record<string, React.ComponentType<{ size?: number; className?: string }>> = {
+const iconMap: Record<string, React.ElementType> = {
   baptism: Droplets,
   prayer: Heart,
   bible: BookOpen,
