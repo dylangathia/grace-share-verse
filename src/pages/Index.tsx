@@ -6,6 +6,11 @@ import BibleReader from "@/components/BibleReader";
 import PrayerWall from "@/components/PrayerWall";
 import CommunityChat from "@/components/CommunityChat";
 import PrayerJournal from "@/components/PrayerJournal";
+import LivePrayerSession from "@/components/LivePrayerSession";
+import ReadingPlans from "@/components/ReadingPlans";
+import WorshipShare from "@/components/WorshipShare";
+import FaithMilestones from "@/components/FaithMilestones";
+import PrayerPartners from "@/components/PrayerPartners";
 import { AnimatePresence, motion } from "framer-motion";
 
 const Index = () => {
@@ -23,6 +28,16 @@ const Index = () => {
         return <CommunityChat />;
       case "journal":
         return <PrayerJournal />;
+      case "live-prayer":
+        return <LivePrayerSession />;
+      case "reading-plans":
+        return <ReadingPlans />;
+      case "worship":
+        return <WorshipShare />;
+      case "milestones":
+        return <FaithMilestones />;
+      case "partners":
+        return <PrayerPartners />;
       default:
         return <HomeScreen onNavigate={setActiveSection} />;
     }
@@ -30,7 +45,6 @@ const Index = () => {
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
-      {/* Sidebar hidden on mobile */}
       <div className="hidden md:block">
         <AppSidebar activeSection={activeSection} onNavigate={setActiveSection} />
       </div>
@@ -48,7 +62,6 @@ const Index = () => {
           </motion.div>
         </AnimatePresence>
       </main>
-      {/* Bottom nav on mobile */}
       <MobileBottomNav activeSection={activeSection} onNavigate={setActiveSection} />
     </div>
   );
