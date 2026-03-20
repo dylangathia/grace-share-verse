@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { BookOpen, Heart, Home, Flame, LayoutGrid, X, Music, Star, Users, MessageCircle, PenLine } from "lucide-react";
+import { BookOpen, Heart, Home, Flame, LayoutGrid, X, Music, Star, Users, MessageCircle, PenLine, Sun, Moon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTheme } from "@/hooks/use-theme";
 
 interface MobileBottomNavProps {
   activeSection: string;
@@ -15,7 +16,6 @@ const primaryNav = [
 ];
 
 const moreItems = [
-  
   { id: "worship", label: "Worship", icon: Music },
   { id: "milestones", label: "Faith Journey", icon: Star },
   { id: "partners", label: "Prayer Partners", icon: Users },
@@ -25,6 +25,7 @@ const moreItems = [
 
 const MobileBottomNav = ({ activeSection, onNavigate }: MobileBottomNavProps) => {
   const [showMore, setShowMore] = useState(false);
+  const { theme, toggleTheme } = useTheme();
 
   const isMoreActive = moreItems.some((item) => item.id === activeSection);
 
@@ -68,6 +69,13 @@ const MobileBottomNav = ({ activeSection, onNavigate }: MobileBottomNavProps) =>
                   <span className="text-[10px] font-body font-medium">{item.label}</span>
                 </button>
               ))}
+              <button
+                onClick={toggleTheme}
+                className="flex flex-col items-center gap-1.5 p-3 rounded-xl transition-colors text-sidebar-foreground/60 hover:text-sidebar-foreground"
+              >
+                {theme === "light" ? <Moon size={20} /> : <Sun size={20} />}
+                <span className="text-[10px] font-body font-medium">{theme === "light" ? "Dark" : "Light"}</span>
+              </button>
             </div>
           </motion.div>
         )}
