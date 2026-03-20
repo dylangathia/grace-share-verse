@@ -30,8 +30,6 @@ const Index = () => {
         return <PrayerJournal />;
       case "live-prayer":
         return <LivePrayerSession />;
-      case "reading-plans":
-        return <ReadingPlans />;
       case "worship":
         return <WorshipShare />;
       case "milestones":

@@ -15,7 +15,7 @@ const churches = [
 const navItems = [
   { id: "home", label: "Home", icon: Home },
   { id: "bible", label: "Bible", icon: BookOpen },
-  { id: "reading-plans", label: "Reading Plans", icon: BookOpen },
+  
   { id: "prayers", label: "Prayer Wall", icon: Heart },
   { id: "live-prayer", label: "Live Prayer", icon: Flame },
   { id: "partners", label: "Prayer Partners", icon: Users },
