@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { BookOpen, Heart, MessageCircle, Church, PenLine, Home, ChevronDown, Users, Flame, Music, Star } from "lucide-react";
+import { BookOpen, Heart, MessageCircle, Church, PenLine, Home, ChevronDown, Users, Flame, Music, Star, Sun, Moon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTheme } from "@/hooks/use-theme";
 
 interface AppSidebarProps {
   activeSection: string;
@@ -15,7 +16,6 @@ const churches = [
 const navItems = [
   { id: "home", label: "Home", icon: Home },
   { id: "bible", label: "Bible", icon: BookOpen },
-  
   { id: "prayers", label: "Prayer Wall", icon: Heart },
   { id: "live-prayer", label: "Live Prayer", icon: Flame },
   { id: "partners", label: "Prayer Partners", icon: Users },
@@ -27,6 +27,7 @@ const navItems = [
 
 const AppSidebar = ({ activeSection, onNavigate }: AppSidebarProps) => {
   const [expandedChurch, setExpandedChurch] = useState<string | null>("grace");
+  const { theme, toggleTheme } = useTheme();
 
   return (
     <aside className="w-64 h-screen bg-sidebar flex flex-col shrink-0">
@@ -107,14 +108,23 @@ const AppSidebar = ({ activeSection, onNavigate }: AppSidebarProps) => {
 
       {/* Footer */}
       <div className="p-4 border-t border-sidebar-border">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-sidebar-accent flex items-center justify-center text-sm font-body font-medium text-sidebar-foreground">
-            J
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full bg-sidebar-accent flex items-center justify-center text-sm font-body font-medium text-sidebar-foreground">
+              J
+            </div>
+            <div>
+              <p className="text-sm text-sidebar-foreground font-medium font-body">John</p>
+              <p className="text-[10px] text-sidebar-foreground/50 font-body">Grace Community</p>
+            </div>
           </div>
-          <div>
-            <p className="text-sm text-sidebar-foreground font-medium font-body">John</p>
-            <p className="text-[10px] text-sidebar-foreground/50 font-body">Grace Community</p>
-          </div>
+          <button
+            onClick={toggleTheme}
+            className="p-2 rounded-lg text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent transition-colors"
+            aria-label="Toggle theme"
+          >
+            {theme === "light" ? <Moon size={16} /> : <Sun size={16} />}
+          </button>
         </div>
       </div>
     </aside>
