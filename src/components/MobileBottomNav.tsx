@@ -15,7 +15,7 @@ const primaryNav = [
 ];
 
 const moreItems = [
-  { id: "reading-plans", label: "Reading Plans", icon: BookOpen },
+  
   { id: "worship", label: "Worship", icon: Music },
   { id: "milestones", label: "Faith Journey", icon: Star },
   { id: "partners", label: "Prayer Partners", icon: Users },

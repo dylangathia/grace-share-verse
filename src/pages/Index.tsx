@@ -7,7 +7,7 @@ import PrayerWall from "@/components/PrayerWall";
 import CommunityChat from "@/components/CommunityChat";
 import PrayerJournal from "@/components/PrayerJournal";
 import LivePrayerSession from "@/components/LivePrayerSession";
-import ReadingPlans from "@/components/ReadingPlans";
+
 import WorshipShare from "@/components/WorshipShare";
 import FaithMilestones from "@/components/FaithMilestones";
 import PrayerPartners from "@/components/PrayerPartners";
@@ -30,8 +30,6 @@ const Index = () => {
         return <PrayerJournal />;
       case "live-prayer":
         return <LivePrayerSession />;
-      case "reading-plans":
-        return <ReadingPlans />;
       case "worship":
         return <WorshipShare />;
       case "milestones":
