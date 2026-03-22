@@ -7,10 +7,10 @@ import PrayerWall from "@/components/PrayerWall";
 import CommunityChat from "@/components/CommunityChat";
 import PrayerJournal from "@/components/PrayerJournal";
 import LivePrayerSession from "@/components/LivePrayerSession";
-
 import WorshipShare from "@/components/WorshipShare";
 import FaithMilestones from "@/components/FaithMilestones";
 import PrayerPartners from "@/components/PrayerPartners";
+import SoulCheck from "@/components/SoulCheck";
 import { AnimatePresence, motion } from "framer-motion";
 
 const Index = () => {
