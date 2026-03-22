@@ -36,6 +36,8 @@ const Index = () => {
         return <FaithMilestones />;
       case "partners":
         return <PrayerPartners />;
+      case "soul-check":
+        return <SoulCheck />;
       default:
         return <HomeScreen onNavigate={setActiveSection} />;
     }

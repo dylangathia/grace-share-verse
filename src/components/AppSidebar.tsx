@@ -12,6 +12,7 @@ const navItems = [
   { id: "prayers", label: "Prayer Wall", icon: Heart },
   { id: "live-prayer", label: "Live Prayer", icon: Flame },
   { id: "partners", label: "Prayer Partners", icon: Users },
+  { id: "soul-check", label: "Soul Check", icon: HeartPulse },
   { id: "worship", label: "Worship", icon: Music },
   { id: "milestones", label: "Faith Journey", icon: Star },
   { id: "chat", label: "Community", icon: MessageCircle },
