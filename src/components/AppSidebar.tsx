@@ -1,4 +1,4 @@
-import { BookOpen, Heart, MessageCircle, PenLine, Home, Users, Flame, Music, Star, Sun, Moon } from "lucide-react";
+import { BookOpen, Heart, MessageCircle, PenLine, Home, Users, Flame, Music, Star, Sun, Moon, HeartPulse } from "lucide-react";
 import { useTheme } from "@/hooks/use-theme";
 
 interface AppSidebarProps {
