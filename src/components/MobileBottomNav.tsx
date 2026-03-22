@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { BookOpen, Heart, Home, Flame, LayoutGrid, X, Music, Star, Users, MessageCircle, PenLine, Sun, Moon } from "lucide-react";
+import { BookOpen, Heart, Home, Flame, LayoutGrid, X, Music, Star, Users, MessageCircle, PenLine, Sun, Moon, HeartPulse } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from "@/hooks/use-theme";
 
