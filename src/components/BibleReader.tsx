@@ -131,7 +131,7 @@ const BibleReader = () => {
       </div>
 
       {/* Book/Chapter selector */}
-      <div className="flex items-center gap-3 mb-8 flex-wrap">
+      <div className="flex items-center gap-3 mb-4 flex-wrap">
         <button onClick={goPrev} className="p-2 rounded-lg hover:bg-secondary transition-colors text-muted-foreground">
           <ChevronLeft size={18} />
         </button>
@@ -177,6 +177,44 @@ const BibleReader = () => {
         </button>
       </div>
 
+      {/* Chapter grid toggle */}
+      <div className="flex justify-center mb-6">
+        <button
+          onClick={() => setShowChapterGrid(!showChapterGrid)}
+          className="flex items-center gap-1.5 text-xs font-body text-muted-foreground hover:text-foreground transition-colors px-3 py-1.5 rounded-full bg-muted/50 hover:bg-muted"
+        >
+          <Grid3X3 size={12} />
+          {showChapterGrid ? "Hide chapters" : `All ${currentBook.chapters} chapters`}
+        </button>
+      </div>
+
+      {/* Chapter grid */}
+      {showChapterGrid && (
+        <motion.div
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: "auto" }}
+          exit={{ opacity: 0, height: 0 }}
+          className="mb-8 prayer-card"
+        >
+          <p className="text-xs font-body text-muted-foreground mb-3">{currentBook.name} — select a chapter</p>
+          <div className="grid grid-cols-8 sm:grid-cols-10 gap-1.5">
+            {Array.from({ length: currentBook.chapters }, (_, i) => (
+              <button
+                key={i + 1}
+                onClick={() => setChapter(i + 1)}
+                className={`w-full aspect-square rounded-lg text-xs font-body font-medium transition-all ${
+                  chapter === i + 1
+                    ? "bg-accent text-accent-foreground"
+                    : "bg-muted/60 text-foreground hover:bg-accent/20"
+                }`}
+              >
+                {i + 1}
+              </button>
+            ))}
+          </div>
+        </motion.div>
+      )}
+
       {/* Verses */}
       {loading ? (
         <div className="flex items-center justify-center py-20">
@@ -191,38 +229,69 @@ const BibleReader = () => {
           </button>
         </div>
       ) : (
-        <div className="space-y-1">
-          {verses.map((verse, i) => (
-            <motion.span
-              key={`${currentBook.name}-${chapter}-${verse.number}`}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: i * 0.015 }}
-              onClick={() => setHighlightedVerse(highlightedVerse === verse.number ? null : verse.number)}
-              className={`scripture-text cursor-pointer inline transition-colors duration-200 ${
-                highlightedVerse === verse.number
-                  ? "bg-accent/20 rounded px-1 -mx-1"
-                  : "hover:bg-secondary/50 rounded px-1 -mx-1"
-              }`}
-            >
-              <sup className="verse-number">{verse.number}</sup>
-              {verse.text}{" "}
-            </motion.span>
-          ))}
-        </div>
+        <>
+          <div className="space-y-1">
+            {verses.map((verse, i) => (
+              <motion.span
+                key={`${currentBook.name}-${chapter}-${verse.number}`}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: i * 0.015 }}
+                onClick={() => setHighlightedVerse(highlightedVerse === verse.number ? null : verse.number)}
+                className={`scripture-text cursor-pointer inline transition-colors duration-200 ${
+                  highlightedVerse === verse.number
+                    ? "bg-accent/20 rounded px-1 -mx-1"
+                    : "hover:bg-secondary/50 rounded px-1 -mx-1"
+                }`}
+              >
+                <sup className="verse-number">{verse.number}</sup>
+                {verse.text}{" "}
+              </motion.span>
+            ))}
+          </div>
+
+          {/* Bottom navigation */}
+          <div className="flex items-center justify-between mt-10 pt-6 border-t border-border">
+            {getPrevLabel() ? (
+              <button
+                onClick={goPrev}
+                className="flex items-center gap-2 text-sm font-body text-muted-foreground hover:text-foreground transition-colors group"
+              >
+                <ArrowLeft size={16} className="group-hover:-translate-x-0.5 transition-transform" />
+                <div className="text-left">
+                  <p className="text-[10px] text-muted-foreground">Previous</p>
+                  <p className="font-medium">{getPrevLabel()}</p>
+                </div>
+              </button>
+            ) : <div />}
+
+            {getNextLabel() ? (
+              <button
+                onClick={goNext}
+                className="flex items-center gap-2 text-sm font-body text-muted-foreground hover:text-foreground transition-colors group"
+              >
+                <div className="text-right">
+                  <p className="text-[10px] text-muted-foreground">Continue reading</p>
+                  <p className="font-medium">{getNextLabel()}</p>
+                </div>
+                <ArrowRight size={16} className="group-hover:translate-x-0.5 transition-transform" />
+              </button>
+            ) : <div />}
+          </div>
+        </>
       )}
     </div>
   );
 
   if (zenMode) {
     return (
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="zen-mode">
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="zen-mode" ref={scrollRef}>
         {content}
       </motion.div>
     );
   }
 
-  return <div className="p-4 sm:p-8">{content}</div>;
+  return <div className="p-4 sm:p-8" ref={scrollRef}>{content}</div>;
 };
 
 export default BibleReader;
