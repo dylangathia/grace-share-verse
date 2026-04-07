@@ -78,6 +78,8 @@ const BibleReader = () => {
 
   useEffect(() => {
     fetchChapter(currentBook.name, chapter);
+    scrollRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+    setShowChapterGrid(false);
   }, [currentBook.name, chapter, fetchChapter]);
 
   const goNext = () => {
@@ -97,6 +99,18 @@ const BibleReader = () => {
       setBookIndex(bookIndex - 1);
       setChapter(prevBook.chapters);
     }
+  };
+
+  const getNextLabel = () => {
+    if (chapter < currentBook.chapters) return `Chapter ${chapter + 1}`;
+    if (bookIndex < bibleBooks.length - 1) return bibleBooks[bookIndex + 1].name;
+    return null;
+  };
+
+  const getPrevLabel = () => {
+    if (chapter > 1) return `Chapter ${chapter - 1}`;
+    if (bookIndex > 0) return bibleBooks[bookIndex - 1].name;
+    return null;
   };
 
   const content = (
