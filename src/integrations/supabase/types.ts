@@ -14,7 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      bible_cache: {
+        Row: {
+          book: string
+          chapter: number
+          created_at: string
+          id: string
+          translation: string
+          verses: Json
+        }
+        Insert: {
+          book: string
+          chapter: number
+          created_at?: string
+          id?: string
+          translation?: string
+          verses: Json
+        }
+        Update: {
+          book?: string
+          chapter?: number
+          created_at?: string
+          id?: string
+          translation?: string
+          verses?: Json
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
