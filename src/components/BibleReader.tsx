@@ -48,6 +48,8 @@ const BibleReader = () => {
   const [verses, setVerses] = useState<Verse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showChapterGrid, setShowChapterGrid] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   const currentBook = bibleBooks[bookIndex];
 
