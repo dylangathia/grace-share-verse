@@ -103,6 +103,7 @@ const BibleReader = () => {
     fetchChapter(currentBook.name, chapter);
     scrollRef.current?.scrollTo({ top: 0, behavior: "smooth" });
     setShowChapterGrid(false);
+    setScrollProgress(0);
   }, [currentBook.name, chapter, fetchChapter]);
 
   const goNext = () => {
