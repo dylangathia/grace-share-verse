@@ -50,9 +50,31 @@ const BibleReader = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showChapterGrid, setShowChapterGrid] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const currentBook = bibleBooks[bookIndex];
+
+  useEffect(() => {
+    const container = zenMode ? scrollRef.current : window;
+    if (!container) return;
+
+    const handleScroll = () => {
+      if (zenMode && scrollRef.current) {
+        const { scrollTop, scrollHeight, clientHeight } = scrollRef.current;
+        const progress = scrollHeight - clientHeight > 0 ? (scrollTop / (scrollHeight - clientHeight)) * 100 : 0;
+        setScrollProgress(Math.min(100, progress));
+      } else {
+        const { scrollY } = window;
+        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        const progress = docHeight > 0 ? (scrollY / docHeight) * 100 : 0;
+        setScrollProgress(Math.min(100, progress));
+      }
+    };
+
+    (container as any).addEventListener("scroll", handleScroll, { passive: true });
+    return () => (container as any).removeEventListener("scroll", handleScroll);
+  }, [zenMode]);
 
   const fetchChapter = useCallback(async (book: string, ch: number) => {
     setLoading(true);
