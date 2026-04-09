@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { motion } from "framer-motion";
 import { Maximize2, Minimize2, ChevronLeft, ChevronRight, BookOpen, Loader2, Grid3X3, ArrowRight, ArrowLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { Progress } from "@/components/ui/progress";
 import {
   Select,
   SelectContent,
@@ -49,9 +50,31 @@ const BibleReader = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showChapterGrid, setShowChapterGrid] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const currentBook = bibleBooks[bookIndex];
+
+  useEffect(() => {
+    const container = zenMode ? scrollRef.current : window;
+    if (!container) return;
+
+    const handleScroll = () => {
+      if (zenMode && scrollRef.current) {
+        const { scrollTop, scrollHeight, clientHeight } = scrollRef.current;
+        const progress = scrollHeight - clientHeight > 0 ? (scrollTop / (scrollHeight - clientHeight)) * 100 : 0;
+        setScrollProgress(Math.min(100, progress));
+      } else {
+        const { scrollY } = window;
+        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        const progress = docHeight > 0 ? (scrollY / docHeight) * 100 : 0;
+        setScrollProgress(Math.min(100, progress));
+      }
+    };
+
+    (container as any).addEventListener("scroll", handleScroll, { passive: true });
+    return () => (container as any).removeEventListener("scroll", handleScroll);
+  }, [zenMode]);
 
   const fetchChapter = useCallback(async (book: string, ch: number) => {
     setLoading(true);
@@ -80,6 +103,7 @@ const BibleReader = () => {
     fetchChapter(currentBook.name, chapter);
     scrollRef.current?.scrollTo({ top: 0, behavior: "smooth" });
     setShowChapterGrid(false);
+    setScrollProgress(0);
   }, [currentBook.name, chapter, fetchChapter]);
 
   const goNext = () => {
@@ -115,7 +139,12 @@ const BibleReader = () => {
 
   const content = (
     <div className="max-w-2xl mx-auto">
-      <div className="flex items-center justify-between mb-8">
+      {/* Reading progress bar */}
+      <div className="sticky top-0 z-10 -mx-4 sm:-mx-8 px-4 sm:px-8 pt-2 pb-1 bg-background/80 backdrop-blur-sm">
+        <Progress value={scrollProgress} className="h-1 bg-muted/40" />
+      </div>
+
+      <div className="flex items-center justify-between mb-8 mt-4">
         {!zenMode && (
           <div>
             <h2 className="section-header">Bible</h2>
