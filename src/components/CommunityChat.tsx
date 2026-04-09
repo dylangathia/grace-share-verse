@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Send, BookOpen, Search, X, ArrowLeft, Users, Hash, Lock } from "lucide-react";
+import { Send, BookOpen, Search, X, ArrowLeft, Users, Hash, Lock, Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface Message {
   id: number;
@@ -22,14 +23,17 @@ interface GroupChat {
   time: string;
 }
 
-const verseDatabase = [
-  { reference: "John 3:16", text: "For God so loved the world that he gave his one and only Son, that whoever believes in him shall not perish but have eternal life." },
-  { reference: "Philippians 4:13", text: "I can do all this through him who gives me strength." },
-  { reference: "Psalm 23:1", text: "The Lord is my shepherd, I lack nothing." },
-  { reference: "Romans 8:28", text: "And we know that in all things God works for the good of those who love him, who have been called according to his purpose." },
-  { reference: "Jeremiah 29:11", text: "For I know the plans I have for you, declares the Lord, plans to prosper you and not to harm you, plans to give you hope and a future." },
-  { reference: "Proverbs 3:5", text: "Trust in the Lord with all your heart and lean not on your own understanding." },
-  { reference: "Isaiah 40:31", text: "But those who hope in the Lord will renew their strength. They will soar on wings like eagles; they will run and not grow weary, they will walk and not be faint." },
+const bibleBooks = [
+  "Genesis", "Exodus", "Leviticus", "Numbers", "Deuteronomy", "Joshua", "Judges", "Ruth",
+  "1 Samuel", "2 Samuel", "1 Kings", "2 Kings", "1 Chronicles", "2 Chronicles",
+  "Ezra", "Nehemiah", "Esther", "Job", "Psalms", "Proverbs", "Ecclesiastes",
+  "Song of Solomon", "Isaiah", "Jeremiah", "Lamentations", "Ezekiel", "Daniel",
+  "Hosea", "Joel", "Amos", "Obadiah", "Jonah", "Micah", "Nahum", "Habakkuk",
+  "Zephaniah", "Haggai", "Zechariah", "Malachi",
+  "Matthew", "Mark", "Luke", "John", "Acts", "Romans",
+  "1 Corinthians", "2 Corinthians", "Galatians", "Ephesians", "Philippians", "Colossians",
+  "1 Thessalonians", "2 Thessalonians", "1 Timothy", "2 Timothy", "Titus", "Philemon",
+  "Hebrews", "James", "1 Peter", "2 Peter", "1 John", "2 John", "3 John", "Jude", "Revelation",
 ];
 
 const groupChats: GroupChat[] = [
@@ -62,12 +66,96 @@ const CommunityChat = () => {
   const [showVerseTool, setShowVerseTool] = useState(false);
   const [verseSearch, setVerseSearch] = useState("");
   const [selectedVerse, setSelectedVerse] = useState<{ reference: string; text: string } | null>(null);
+  const [searchResults, setSearchResults] = useState<{ reference: string; text: string }[]>([]);
+  const [verseLoading, setVerseLoading] = useState(false);
+  const [verseError, setVerseError] = useState<string | null>(null);
 
-  const filteredVerses = verseDatabase.filter(
-    (v) =>
-      v.reference.toLowerCase().includes(verseSearch.toLowerCase()) ||
-      v.text.toLowerCase().includes(verseSearch.toLowerCase())
-  );
+  // Parse a reference like "John 3:16" or "Romans 8:28-30" or "Genesis 1"
+  const parseReference = (ref: string): { book: string; chapter: number; verseStart?: number; verseEnd?: number } | null => {
+    // Match patterns like "1 John 3:16", "Genesis 1:1-3", "Psalm 23", "Romans 8:28"
+    const match = ref.match(/^(\d?\s?[A-Za-z\s]+?)\s+(\d+)(?::(\d+)(?:-(\d+))?)?$/);
+    if (!match) return null;
+    const bookInput = match[1].trim();
+    const chapter = parseInt(match[2]);
+    const verseStart = match[3] ? parseInt(match[3]) : undefined;
+    const verseEnd = match[4] ? parseInt(match[4]) : verseStart;
+
+    // Fuzzy match the book name
+    const bookLower = bookInput.toLowerCase();
+    const found = bibleBooks.find(
+      (b) => b.toLowerCase() === bookLower || b.toLowerCase().startsWith(bookLower)
+    );
+    if (!found) return null;
+    return { book: found, chapter, verseStart, verseEnd };
+  };
+
+  const searchVerses = useCallback(async (query: string) => {
+    if (!query.trim()) {
+      setSearchResults([]);
+      setVerseError(null);
+      return;
+    }
+
+    const parsed = parseReference(query.trim());
+    if (!parsed) {
+      setSearchResults([]);
+      setVerseError(query.length > 2 ? "Try a reference like \"John 3:16\" or \"Psalm 23\"" : null);
+      return;
+    }
+
+    setVerseLoading(true);
+    setVerseError(null);
+    setSearchResults([]);
+
+    try {
+      const { data, error } = await supabase.functions.invoke("get-bible-chapter", {
+        body: { book: parsed.book, chapter: parsed.chapter, translation: "kjv" },
+      });
+
+      if (error) throw error;
+      if (!data?.verses?.length) throw new Error("No verses found");
+
+      const verses: { number: number; text: string }[] = data.verses;
+
+      if (parsed.verseStart !== undefined) {
+        const end = parsed.verseEnd ?? parsed.verseStart;
+        const filtered = verses.filter((v) => v.number >= parsed.verseStart! && v.number <= end);
+        if (filtered.length === 0) {
+          setVerseError("Verse not found in this chapter");
+          return;
+        }
+        const verseRange = parsed.verseStart === end
+          ? `${parsed.verseStart}`
+          : `${parsed.verseStart}-${end}`;
+        setSearchResults([
+          {
+            reference: `${parsed.book} ${parsed.chapter}:${verseRange}`,
+            text: filtered.map((v) => v.text).join(" "),
+          },
+        ]);
+      } else {
+        // Show first few verses as preview options, plus option for whole chapter
+        const preview = verses.slice(0, 5);
+        const results = preview.map((v) => ({
+          reference: `${parsed.book} ${parsed.chapter}:${v.number}`,
+          text: v.text,
+        }));
+        // Add a "whole chapter" option if there are more verses
+        if (verses.length > 1) {
+          results.unshift({
+            reference: `${parsed.book} ${parsed.chapter}:1-${verses.length}`,
+            text: verses.slice(0, 3).map((v) => v.text).join(" ") + (verses.length > 3 ? " ..." : ""),
+          });
+        }
+        setSearchResults(results);
+      }
+    } catch (e) {
+      console.error("Verse search error:", e);
+      setVerseError("Could not load this reference. Check the book and chapter.");
+    } finally {
+      setVerseLoading(false);
+    }
+  }, []);
 
   const openGroup = (groupId: string) => {
     setActiveGroup(groupId);
@@ -214,7 +302,7 @@ const CommunityChat = () => {
           >
             <div className="flex items-center justify-between mb-3">
               <span className="text-sm font-body font-semibold">Insert Scripture</span>
-              <button onClick={() => { setShowVerseTool(false); setVerseSearch(""); }} className="text-muted-foreground hover:text-foreground">
+              <button onClick={() => { setShowVerseTool(false); setVerseSearch(""); setSearchResults([]); setVerseError(null); }} className="text-muted-foreground hover:text-foreground">
                 <X size={16} />
               </button>
             </div>
@@ -223,18 +311,39 @@ const CommunityChat = () => {
               <input
                 value={verseSearch}
                 onChange={(e) => setVerseSearch(e.target.value)}
-                placeholder="Search verses..."
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    searchVerses(verseSearch);
+                  }
+                }}
+                placeholder="e.g. John 3:16, Psalm 23, Romans 8:28-30"
                 className="w-full bg-background border border-border rounded-lg pl-9 pr-3 py-2 text-sm font-body focus:outline-none focus:ring-2 focus:ring-accent/30"
               />
             </div>
+            <button
+              onClick={() => searchVerses(verseSearch)}
+              disabled={verseLoading || !verseSearch.trim()}
+              className="w-full mb-3 gold-button text-xs py-2 flex items-center justify-center gap-2 disabled:opacity-50"
+            >
+              {verseLoading ? <Loader2 size={14} className="animate-spin" /> : <Search size={14} />}
+              {verseLoading ? "Looking up..." : "Look up verse"}
+            </button>
+
+            {verseError && (
+              <p className="text-xs font-body text-muted-foreground mb-3 text-center">{verseError}</p>
+            )}
+
             <div className="max-h-48 overflow-y-auto space-y-2">
-              {filteredVerses.map((verse) => (
+              {searchResults.map((verse) => (
                 <button
                   key={verse.reference}
                   onClick={() => {
                     setSelectedVerse(verse);
                     setShowVerseTool(false);
                     setVerseSearch("");
+                    setSearchResults([]);
+                    setVerseError(null);
                   }}
                   className="w-full text-left p-3 rounded-lg hover:bg-secondary transition-colors"
                 >
