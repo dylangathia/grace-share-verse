@@ -138,7 +138,12 @@ const BibleReader = () => {
 
   const content = (
     <div className="max-w-2xl mx-auto">
-      <div className="flex items-center justify-between mb-8">
+      {/* Reading progress bar */}
+      <div className="sticky top-0 z-10 -mx-4 sm:-mx-8 px-4 sm:px-8 pt-2 pb-1 bg-background/80 backdrop-blur-sm">
+        <Progress value={scrollProgress} className="h-1 bg-muted/40" />
+      </div>
+
+      <div className="flex items-center justify-between mb-8 mt-4">
         {!zenMode && (
           <div>
             <h2 className="section-header">Bible</h2>
