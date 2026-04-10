@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Plus, X, Star, Droplets, Heart, BookOpen, Church, Calendar, Eye, EyeOff } from "lucide-react";
+import { toast } from "sonner";
 
 interface Milestone {
   id: number;
@@ -46,6 +47,7 @@ const FaithMilestones = () => {
     setMilestones([milestone, ...milestones]);
     setForm({ title: "", description: "", icon: "general", isPublic: true });
     setShowForm(false);
+    toast.success("Milestone added! ✨", { description: `"${milestone.title}" saved to your journey` });
   };
 
   return (

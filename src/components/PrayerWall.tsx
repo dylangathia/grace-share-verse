@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Heart, Plus, X, User, EyeOff, BookOpen, Search } from "lucide-react";
+import { toast } from "sonner";
+import { usePullToRefresh } from "@/hooks/use-pull-to-refresh";
+import PullToRefreshIndicator from "@/components/PullToRefreshIndicator";
 
 interface PrayerRequest {
   id: number;
@@ -50,11 +53,16 @@ const PrayerWall = () => {
   );
 
   const handlePray = (id: number) => {
+    const prayer = prayers.find(p => p.id === id);
+    const willPray = prayer && !prayer.hasPrayed;
     setPrayers(prayers.map((p) =>
       p.id === id
         ? { ...p, hasPrayed: !p.hasPrayed, prayerCount: p.hasPrayed ? p.prayerCount - 1 : p.prayerCount + 1 }
         : p
     ));
+    if (willPray) {
+      toast("🙏 Praying for this request", { description: "Your prayer has been counted" });
+    }
   };
 
   const handleSubmit = () => {
@@ -75,10 +83,19 @@ const PrayerWall = () => {
     setSelectedVerse(null);
     setShowForm(false);
     setShowVerseSearch(false);
+    toast.success("Prayer request shared", { description: "Your community is lifting you up" });
   };
 
+  const { containerRef, pullDistance, refreshing } = usePullToRefresh({
+    onRefresh: async () => {
+      await new Promise(r => setTimeout(r, 800));
+      toast("Prayer Wall refreshed");
+    },
+  });
+
   return (
-    <div className="p-4 sm:p-8">
+    <div className="p-4 sm:p-8" ref={containerRef}>
+      <PullToRefreshIndicator pullDistance={pullDistance} refreshing={refreshing} />
       <div className="flex items-center justify-between mb-8">
         <div>
           <h2 className="section-header">Prayer Wall</h2>

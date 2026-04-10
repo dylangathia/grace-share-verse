@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Flame, Users, Hand, Heart, Clock, Circle } from "lucide-react";
+import { toast } from "sonner";
 
 interface Participant {
   id: number;
@@ -89,7 +90,10 @@ const LivePrayerSession = () => {
             {mockParticipants.length} members praying now
           </p>
           <button
-            onClick={() => setHasJoined(true)}
+            onClick={() => {
+              setHasJoined(true);
+              toast.success("You've joined the prayer room", { description: "Welcome to the prayer circle" });
+            }}
             className="gold-button text-base px-8 py-3"
           >
             Join Prayer Room

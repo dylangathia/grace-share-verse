@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Plus, Check, Clock, X, PenLine } from "lucide-react";
+import { toast } from "sonner";
 
 interface JournalEntry {
   id: number;
@@ -34,10 +35,16 @@ const PrayerJournal = () => {
     ]);
     setNewEntry("");
     setShowForm(false);
+    toast.success("Journal entry added", { description: "Keep lifting it up in prayer" });
   };
 
   const toggleAnswered = (id: number) => {
+    const entry = entries.find(e => e.id === id);
+    const marking = entry && !entry.answered;
     setEntries(entries.map((e) => (e.id === id ? { ...e, answered: !e.answered } : e)));
+    if (marking) {
+      toast("🎉 Prayer answered!", { description: "Praise God for His faithfulness" });
+    }
   };
 
   const active = entries.filter((e) => !e.answered);

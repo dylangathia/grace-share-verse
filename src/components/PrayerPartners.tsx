@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Users, Heart, Send, Lock, ArrowLeft, Clock, BookOpen, Flame, MessageCircle, Sparkles } from "lucide-react";
+import { toast } from "sonner";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 
@@ -92,6 +93,7 @@ const PrayerPartners = () => {
       ],
     });
     setNewMessage("");
+    toast("Message sent", { description: `To ${activePartner.name}` });
   };
 
   // ── Chat View ──
