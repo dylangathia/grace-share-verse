@@ -246,9 +246,14 @@ const BibleReader = () => {
 
       {/* Verses */}
       {loading ? (
-        <div className="flex items-center justify-center py-20">
-          <Loader2 size={24} className="animate-spin text-accent" />
-          <span className="ml-3 text-sm text-muted-foreground font-body">Loading chapter...</span>
+        <div className="space-y-3 py-4">
+          {Array.from({ length: 14 }).map((_, i) => (
+            <div
+              key={i}
+              className="h-5 bg-muted/60 rounded animate-pulse"
+              style={{ width: `${60 + Math.random() * 40}%` }}
+            />
+          ))}
         </div>
       ) : error ? (
         <div className="text-center py-20">
