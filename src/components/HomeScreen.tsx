@@ -2,6 +2,8 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { BookOpen, Heart, MessageCircle, PenLine, Sunrise, Music, Star, Users, Flame, MessageSquare } from "lucide-react";
 import { toast } from "sonner";
+import { useReadingStreak } from "@/hooks/use-reading-streak";
+import ReadingStreakBadge from "@/components/ReadingStreakBadge";
 
 interface HomeScreenProps {
   onNavigate: (section: string) => void;
@@ -19,6 +21,8 @@ const HomeScreen = ({ onNavigate }: HomeScreenProps) => {
     reference: "Lamentations 3:22-23",
     text: "Because of the Lord's great love we are not consumed, for his compassions never fail. They are new every morning; great is your faithfulness.",
   };
+
+  const { currentStreak, readToday } = useReadingStreak();
 
   const [reactions, setReactions] = useState<Reaction[]>([
     { id: 1, author: "Sarah M.", text: "This is exactly what I needed today. His faithfulness is unmatched.", timeAgo: "1h ago" },
@@ -58,9 +62,12 @@ const HomeScreen = ({ onNavigate }: HomeScreenProps) => {
           <Sunrise size={18} />
           <span className="text-sm font-body font-medium">Good morning</span>
         </div>
-        <h1 className="font-display text-2xl sm:text-4xl font-bold tracking-tight text-foreground">
-          Welcome back, John
-        </h1>
+        <div className="flex items-end justify-between gap-3 flex-wrap">
+          <h1 className="font-display text-2xl sm:text-4xl font-bold tracking-tight text-foreground">
+            Welcome back, John
+          </h1>
+          <ReadingStreakBadge streak={currentStreak} readToday={readToday} />
+        </div>
       </motion.div>
 
       {/* Verse of the Day with Reactions */}

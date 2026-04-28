@@ -1,7 +1,8 @@
 import { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Send, BookOpen, Search, X, ArrowLeft, Users, Hash, Lock, Loader2 } from "lucide-react";
+import { Send, BookOpen, Search, X, ArrowLeft, Users, Hash, Lock, Loader2, MessagesSquare } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import EmptyState from "@/components/EmptyState";
 
 interface Message {
   id: number;
@@ -262,7 +263,14 @@ const CommunityChat = () => {
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-6 space-y-4">
-        {messages.map((msg, i) => (
+        {messages.length === 0 ? (
+          <EmptyState
+            icon={MessagesSquare}
+            title="Start the conversation"
+            description={`No messages in ${currentGroup?.name} yet. Say hello, share a verse, or ask for prayer — the group is listening.`}
+            decoration="messages"
+          />
+        ) : messages.map((msg, i) => (
           <motion.div
             key={msg.id}
             initial={{ opacity: 0, y: 8 }}

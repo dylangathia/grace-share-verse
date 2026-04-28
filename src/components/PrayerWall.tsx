@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Heart, Plus, X, User, EyeOff, BookOpen, Search } from "lucide-react";
+import { Heart, Plus, X, User, EyeOff, BookOpen, Search, HandHeart } from "lucide-react";
 import { toast } from "sonner";
 import { usePullToRefresh } from "@/hooks/use-pull-to-refresh";
 import PullToRefreshIndicator from "@/components/PullToRefreshIndicator";
+import EmptyState from "@/components/EmptyState";
 
 interface PrayerRequest {
   id: number;
@@ -206,7 +207,18 @@ const PrayerWall = () => {
         )}
       </AnimatePresence>
 
-      {/* Masonry Grid */}
+      {/* Empty State */}
+      {prayers.length === 0 ? (
+        <EmptyState
+          icon={HandHeart}
+          title="The wall is quiet"
+          description="No prayer requests yet. Be the first to share what's on your heart — your community is ready to lift you up."
+          actionLabel="Share the first request"
+          onAction={() => setShowForm(true)}
+          decoration="hearts"
+        />
+      ) : (
+      /* Masonry Grid */
       <div className="columns-1 md:columns-2 lg:columns-3 gap-4 space-y-4">
         {prayers.map((prayer, i) => (
           <motion.div
@@ -263,6 +275,7 @@ const PrayerWall = () => {
           </motion.div>
         ))}
       </div>
+      )}
     </div>
   );
 };

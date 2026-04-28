@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Plus, Check, Clock, X, PenLine } from "lucide-react";
+import { Plus, Check, Clock, X, PenLine, BookHeart } from "lucide-react";
 import { toast } from "sonner";
+import EmptyState from "@/components/EmptyState";
 
 interface JournalEntry {
   id: number;
@@ -83,6 +84,18 @@ const PrayerJournal = () => {
             <button onClick={handleAdd} className="gold-button text-sm">Save</button>
           </div>
         </motion.div>
+      )}
+
+      {/* Empty State */}
+      {entries.length === 0 && !showForm && (
+        <EmptyState
+          icon={BookHeart}
+          title="Your journal is a blank page"
+          description="A quiet place to bring requests, gratitude, and reflection to God. What's stirring in your heart today?"
+          actionLabel="Write your first prayer"
+          onAction={() => setShowForm(true)}
+          decoration="sparkles"
+        />
       )}
 
       {/* Active Prayers */}

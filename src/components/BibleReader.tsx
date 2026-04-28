@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { motion } from "framer-motion";
-import { Maximize2, Minimize2, ChevronLeft, ChevronRight, BookOpen, Loader2, Grid3X3, ArrowRight, ArrowLeft } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Maximize2, Minimize2, ChevronLeft, ChevronRight, BookOpen, Grid3X3, ArrowRight, ArrowLeft, X, Highlighter } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Progress } from "@/components/ui/progress";
 import {
@@ -10,11 +10,37 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useReadingStreak } from "@/hooks/use-reading-streak";
+import ReadingStreakBadge from "@/components/ReadingStreakBadge";
+import { toast } from "sonner";
 
 interface Verse {
   number: number;
   text: string;
 }
+
+type HighlightColor = "yellow" | "green" | "blue" | "pink";
+
+interface HighlightMap {
+  // key: `${book}-${chapter}-${verseNumber}` => color
+  [key: string]: HighlightColor;
+}
+
+const HIGHLIGHTS_KEY = "sanctuary-bible-highlights";
+
+const colorStyles: Record<HighlightColor, string> = {
+  yellow: "bg-[hsl(48_95%_70%/0.35)] dark:bg-[hsl(48_70%_50%/0.3)]",
+  green: "bg-[hsl(142_60%_60%/0.3)] dark:bg-[hsl(142_50%_45%/0.3)]",
+  blue: "bg-[hsl(210_80%_70%/0.3)] dark:bg-[hsl(210_60%_50%/0.3)]",
+  pink: "bg-[hsl(340_80%_75%/0.3)] dark:bg-[hsl(340_60%_55%/0.3)]",
+};
+
+const colorSwatches: Record<HighlightColor, string> = {
+  yellow: "bg-[hsl(48_95%_60%)]",
+  green: "bg-[hsl(142_60%_50%)]",
+  blue: "bg-[hsl(210_80%_60%)]",
+  pink: "bg-[hsl(340_80%_65%)]",
+};
 
 const bibleBooks = [
   { name: "Genesis", chapters: 50 }, { name: "Exodus", chapters: 40 }, { name: "Leviticus", chapters: 27 },
@@ -43,7 +69,7 @@ const bibleBooks = [
 
 const BibleReader = () => {
   const [zenMode, setZenMode] = useState(false);
-  const [highlightedVerse, setHighlightedVerse] = useState<number | null>(null);
+  const [activeVerse, setActiveVerse] = useState<number | null>(null);
   const [bookIndex, setBookIndex] = useState(0);
   const [chapter, setChapter] = useState(1);
   const [verses, setVerses] = useState<Verse[]>([]);
@@ -52,8 +78,42 @@ const BibleReader = () => {
   const [showChapterGrid, setShowChapterGrid] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const streakMarkedRef = useRef<string | null>(null);
+
+  const [highlights, setHighlights] = useState<HighlightMap>(() => {
+    try {
+      const raw = localStorage.getItem(HIGHLIGHTS_KEY);
+      return raw ? JSON.parse(raw) : {};
+    } catch {
+      return {};
+    }
+  });
+
+  const { currentStreak, readToday, markRead } = useReadingStreak();
 
   const currentBook = bibleBooks[bookIndex];
+
+  const persistHighlights = (next: HighlightMap) => {
+    setHighlights(next);
+    try {
+      localStorage.setItem(HIGHLIGHTS_KEY, JSON.stringify(next));
+    } catch {}
+  };
+
+  const verseKey = (verseNumber: number) =>
+    `${currentBook.name}-${chapter}-${verseNumber}`;
+
+  const setHighlight = (verseNumber: number, color: HighlightColor | null) => {
+    const key = verseKey(verseNumber);
+    const next = { ...highlights };
+    if (color === null) {
+      delete next[key];
+    } else {
+      next[key] = color;
+    }
+    persistHighlights(next);
+    setActiveVerse(null);
+  };
 
   useEffect(() => {
     const container = zenMode ? scrollRef.current : window;
@@ -70,16 +130,28 @@ const BibleReader = () => {
         const progress = docHeight > 0 ? (scrollY / docHeight) * 100 : 0;
         setScrollProgress(Math.min(100, progress));
       }
+
+      // Mark reading streak after 30% scroll on a chapter (once per chapter view)
+      const sigKey = `${currentBook.name}-${chapter}`;
+      if (scrollProgress > 30 && streakMarkedRef.current !== sigKey) {
+        streakMarkedRef.current = sigKey;
+        const newlyMarked = markRead();
+        if (newlyMarked) {
+          toast("🔥 Reading streak updated!", {
+            description: "Great job showing up in the Word today.",
+          });
+        }
+      }
     };
 
     (container as any).addEventListener("scroll", handleScroll, { passive: true });
     return () => (container as any).removeEventListener("scroll", handleScroll);
-  }, [zenMode]);
+  }, [zenMode, scrollProgress, currentBook.name, chapter, markRead]);
 
   const fetchChapter = useCallback(async (book: string, ch: number) => {
     setLoading(true);
     setError(null);
-    setHighlightedVerse(null);
+    setActiveVerse(null);
     try {
       const { data, error: fnError } = await supabase.functions.invoke("get-bible-chapter", {
         body: { book, chapter: ch, translation: "kjv" },
@@ -104,6 +176,7 @@ const BibleReader = () => {
     scrollRef.current?.scrollTo({ top: 0, behavior: "smooth" });
     setShowChapterGrid(false);
     setScrollProgress(0);
+    streakMarkedRef.current = null;
   }, [currentBook.name, chapter, fetchChapter]);
 
   const goNext = () => {
@@ -144,19 +217,25 @@ const BibleReader = () => {
         <Progress value={scrollProgress} className="h-1 bg-muted/40" />
       </div>
 
-      <div className="flex items-center justify-between mb-8 mt-4">
+      <div className="flex items-center justify-between mb-8 mt-4 gap-3">
         {!zenMode && (
-          <div>
+          <div className="flex-1 min-w-0">
             <h2 className="section-header">Bible</h2>
             <p className="text-sm text-muted-foreground font-body mt-1">Read, reflect, and meditate</p>
           </div>
         )}
-        <button
-          onClick={() => setZenMode(!zenMode)}
-          className="p-2 rounded-lg hover:bg-secondary transition-colors text-muted-foreground"
-        >
-          {zenMode ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
-        </button>
+        <div className="flex items-center gap-2 shrink-0">
+          {!zenMode && (
+            <ReadingStreakBadge streak={currentStreak} readToday={readToday} size="sm" />
+          )}
+          <button
+            onClick={() => setZenMode(!zenMode)}
+            className="p-2 rounded-lg hover:bg-secondary transition-colors text-muted-foreground"
+            aria-label={zenMode ? "Exit zen mode" : "Enter zen mode"}
+          >
+            {zenMode ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
+          </button>
+        </div>
       </div>
 
       {/* Book/Chapter selector */}
@@ -264,24 +343,67 @@ const BibleReader = () => {
         </div>
       ) : (
         <>
-          <div className="space-y-1">
-            {verses.map((verse, i) => (
-              <motion.span
-                key={`${currentBook.name}-${chapter}-${verse.number}`}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: i * 0.015 }}
-                onClick={() => setHighlightedVerse(highlightedVerse === verse.number ? null : verse.number)}
-                className={`scripture-text cursor-pointer inline transition-colors duration-200 ${
-                  highlightedVerse === verse.number
-                    ? "bg-accent/20 rounded px-1 -mx-1"
-                    : "hover:bg-secondary/50 rounded px-1 -mx-1"
-                }`}
-              >
-                <sup className="verse-number">{verse.number}</sup>
-                {verse.text}{" "}
-              </motion.span>
-            ))}
+          <div className="space-y-1 leading-loose">
+            {verses.map((verse, i) => {
+              const key = verseKey(verse.number);
+              const highlight = highlights[key];
+              const isActive = activeVerse === verse.number;
+              return (
+                <span key={`${currentBook.name}-${chapter}-${verse.number}`} className="relative">
+                  <motion.span
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: i * 0.015 }}
+                    onClick={() => setActiveVerse(isActive ? null : verse.number)}
+                    className={`scripture-text cursor-pointer inline transition-colors duration-200 rounded px-1 -mx-1 ${
+                      highlight
+                        ? colorStyles[highlight]
+                        : isActive
+                        ? "bg-accent/15"
+                        : "hover:bg-secondary/50"
+                    }`}
+                  >
+                    <sup className="verse-number">{verse.number}</sup>
+                    {verse.text}{" "}
+                  </motion.span>
+
+                  {/* Highlight color picker popover */}
+                  <AnimatePresence>
+                    {isActive && (
+                      <motion.span
+                        initial={{ opacity: 0, y: -4, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: -4, scale: 0.95 }}
+                        transition={{ duration: 0.15 }}
+                        className="inline-flex items-center gap-1.5 align-middle ml-1 px-2 py-1 bg-card border border-border rounded-full shadow-md"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <Highlighter size={10} className="text-muted-foreground" />
+                        {(Object.keys(colorSwatches) as HighlightColor[]).map((c) => (
+                          <button
+                            key={c}
+                            onClick={() => setHighlight(verse.number, c)}
+                            className={`w-4 h-4 rounded-full ${colorSwatches[c]} ${
+                              highlight === c ? "ring-2 ring-foreground/40 ring-offset-1 ring-offset-card" : ""
+                            } hover:scale-110 transition-transform`}
+                            aria-label={`Highlight ${c}`}
+                          />
+                        ))}
+                        {highlight && (
+                          <button
+                            onClick={() => setHighlight(verse.number, null)}
+                            className="w-4 h-4 rounded-full bg-muted text-muted-foreground hover:text-foreground flex items-center justify-center"
+                            aria-label="Remove highlight"
+                          >
+                            <X size={10} />
+                          </button>
+                        )}
+                      </motion.span>
+                    )}
+                  </AnimatePresence>
+                </span>
+              );
+            })}
           </div>
 
           {/* Bottom navigation */}
