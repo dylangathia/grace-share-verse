@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Maximize2, Minimize2, ChevronLeft, ChevronRight, BookOpen, Grid3X3, ArrowRight, ArrowLeft, X, Highlighter } from "lucide-react";
+import { Maximize2, Minimize2, ChevronLeft, ChevronRight, BookOpen, Grid3X3, ArrowRight, ArrowLeft, X, Highlighter, Bookmark as BookmarkIcon, Headphones, Share2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Progress } from "@/components/ui/progress";
 import {
@@ -12,6 +12,9 @@ import {
 } from "@/components/ui/select";
 import { useReadingStreak } from "@/hooks/use-reading-streak";
 import ReadingStreakBadge from "@/components/ReadingStreakBadge";
+import { useBookmarks } from "@/hooks/use-bookmarks";
+import { useAudioBible } from "@/hooks/use-audio-bible";
+import ShareVerseDialog from "@/components/ShareVerseDialog";
 import { toast } from "sonner";
 
 interface Verse {
