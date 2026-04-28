@@ -22,6 +22,8 @@ const HomeScreen = ({ onNavigate }: HomeScreenProps) => {
     text: "Because of the Lord's great love we are not consumed, for his compassions never fail. They are new every morning; great is your faithfulness.",
   };
 
+  const { currentStreak, readToday } = useReadingStreak();
+
   const [reactions, setReactions] = useState<Reaction[]>([
     { id: 1, author: "Sarah M.", text: "This is exactly what I needed today. His faithfulness is unmatched.", timeAgo: "1h ago" },
     { id: 2, author: "David K.", text: "'New every morning' — what a comfort when yesterday was hard.", timeAgo: "2h ago" },
