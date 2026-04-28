@@ -93,6 +93,9 @@ const BibleReader = () => {
   });
 
   const { currentStreak, readToday, markRead } = useReadingStreak();
+  const { isBookmarked, getBookmark, addBookmark, removeBookmark } = useBookmarks();
+  const audio = useAudioBible();
+  const [shareTarget, setShareTarget] = useState<{ reference: string; text: string } | null>(null);
 
   const currentBook = bibleBooks[bookIndex];
 
