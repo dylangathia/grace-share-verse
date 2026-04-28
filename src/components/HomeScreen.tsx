@@ -2,6 +2,8 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { BookOpen, Heart, MessageCircle, PenLine, Sunrise, Music, Star, Users, Flame, MessageSquare } from "lucide-react";
 import { toast } from "sonner";
+import { useReadingStreak } from "@/hooks/use-reading-streak";
+import ReadingStreakBadge from "@/components/ReadingStreakBadge";
 
 interface HomeScreenProps {
   onNavigate: (section: string) => void;
