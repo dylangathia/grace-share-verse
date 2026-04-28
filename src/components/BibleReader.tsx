@@ -513,15 +513,29 @@ const BibleReader = () => {
     </div>
   );
 
+  const shareDialog = (
+    <ShareVerseDialog
+      open={!!shareTarget}
+      onClose={() => setShareTarget(null)}
+      verse={shareTarget}
+    />
+  );
+
   if (zenMode) {
     return (
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="zen-mode" ref={scrollRef}>
         {content}
+        {shareDialog}
       </motion.div>
     );
   }
 
-  return <div className="p-4 sm:p-8" ref={scrollRef}>{content}</div>;
+  return (
+    <div className="p-4 sm:p-8" ref={scrollRef}>
+      {content}
+      {shareDialog}
+    </div>
+  );
 };
 
 export default BibleReader;
