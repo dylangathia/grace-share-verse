@@ -62,9 +62,12 @@ const HomeScreen = ({ onNavigate }: HomeScreenProps) => {
           <Sunrise size={18} />
           <span className="text-sm font-body font-medium">Good morning</span>
         </div>
-        <h1 className="font-display text-2xl sm:text-4xl font-bold tracking-tight text-foreground">
-          Welcome back, John
-        </h1>
+        <div className="flex items-end justify-between gap-3 flex-wrap">
+          <h1 className="font-display text-2xl sm:text-4xl font-bold tracking-tight text-foreground">
+            Welcome back, John
+          </h1>
+          <ReadingStreakBadge streak={currentStreak} readToday={readToday} />
+        </div>
       </motion.div>
 
       {/* Verse of the Day with Reactions */}
