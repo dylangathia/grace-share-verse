@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Plus, Check, Clock, X, PenLine } from "lucide-react";
+import { Plus, Check, Clock, X, PenLine, BookHeart } from "lucide-react";
 import { toast } from "sonner";
+import EmptyState from "@/components/EmptyState";
 
 interface JournalEntry {
   id: number;
