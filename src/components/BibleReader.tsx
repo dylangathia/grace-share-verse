@@ -235,6 +235,28 @@ const BibleReader = () => {
             <ReadingStreakBadge streak={currentStreak} readToday={readToday} size="sm" />
           )}
           <button
+            onClick={() => {
+              if (verses.length === 0) return;
+              if (audio.isPlaying && audio.reference === `${currentBook.name} ${chapter}`) {
+                audio.stop();
+                toast("Audio stopped");
+              } else {
+                audio.play(currentBook.name, chapter, verses);
+                toast("🎧 Listening to chapter");
+              }
+            }}
+            disabled={verses.length === 0}
+            className={`p-2 rounded-lg hover:bg-secondary transition-colors disabled:opacity-40 ${
+              audio.isPlaying && audio.reference === `${currentBook.name} ${chapter}`
+                ? "text-accent"
+                : "text-muted-foreground"
+            }`}
+            aria-label="Listen to chapter"
+            title="Listen to chapter"
+          >
+            <Headphones size={20} />
+          </button>
+          <button
             onClick={() => setZenMode(!zenMode)}
             className="p-2 rounded-lg hover:bg-secondary transition-colors text-muted-foreground"
             aria-label={zenMode ? "Exit zen mode" : "Enter zen mode"}
