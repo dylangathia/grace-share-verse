@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { BookOpen, Heart, Home, Flame, LayoutGrid, X, Music, Star, Users, MessageCircle, PenLine, Sun, Moon, HeartPulse } from "lucide-react";
+import { BookOpen, Heart, Home, Flame, LayoutGrid, X, Music, Star, Users, MessageCircle, PenLine, Sun, Moon, HeartPulse, Bookmark, Settings as SettingsIcon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from "@/hooks/use-theme";
 
@@ -16,12 +16,14 @@ const primaryNav = [
 ];
 
 const moreItems = [
+  { id: "bookmarks", label: "Bookmarks", icon: Bookmark },
   { id: "soul-check", label: "Soul Check", icon: HeartPulse },
   { id: "worship", label: "Worship", icon: Music },
   { id: "milestones", label: "Faith Journey", icon: Star },
   { id: "partners", label: "Prayer Partners", icon: Users },
   { id: "chat", label: "Community", icon: MessageCircle },
   { id: "journal", label: "Journal", icon: PenLine },
+  { id: "settings", label: "Settings", icon: SettingsIcon },
 ];
 
 const MobileBottomNav = ({ activeSection, onNavigate }: MobileBottomNavProps) => {

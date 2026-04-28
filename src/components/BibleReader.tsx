@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Maximize2, Minimize2, ChevronLeft, ChevronRight, BookOpen, Grid3X3, ArrowRight, ArrowLeft, X, Highlighter } from "lucide-react";
+import { Maximize2, Minimize2, ChevronLeft, ChevronRight, BookOpen, Grid3X3, ArrowRight, ArrowLeft, X, Highlighter, Bookmark as BookmarkIcon, Headphones, Share2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Progress } from "@/components/ui/progress";
 import {
@@ -12,6 +12,9 @@ import {
 } from "@/components/ui/select";
 import { useReadingStreak } from "@/hooks/use-reading-streak";
 import ReadingStreakBadge from "@/components/ReadingStreakBadge";
+import { useBookmarks } from "@/hooks/use-bookmarks";
+import { useAudioBible } from "@/hooks/use-audio-bible";
+import ShareVerseDialog from "@/components/ShareVerseDialog";
 import { toast } from "sonner";
 
 interface Verse {
@@ -90,6 +93,9 @@ const BibleReader = () => {
   });
 
   const { currentStreak, readToday, markRead } = useReadingStreak();
+  const { isBookmarked, getBookmark, addBookmark, removeBookmark } = useBookmarks();
+  const audio = useAudioBible();
+  const [shareTarget, setShareTarget] = useState<{ reference: string; text: string } | null>(null);
 
   const currentBook = bibleBooks[bookIndex];
 
@@ -229,6 +235,28 @@ const BibleReader = () => {
             <ReadingStreakBadge streak={currentStreak} readToday={readToday} size="sm" />
           )}
           <button
+            onClick={() => {
+              if (verses.length === 0) return;
+              if (audio.isPlaying && audio.reference === `${currentBook.name} ${chapter}`) {
+                audio.stop();
+                toast("Audio stopped");
+              } else {
+                audio.play(currentBook.name, chapter, verses);
+                toast("🎧 Listening to chapter");
+              }
+            }}
+            disabled={verses.length === 0}
+            className={`p-2 rounded-lg hover:bg-secondary transition-colors disabled:opacity-40 ${
+              audio.isPlaying && audio.reference === `${currentBook.name} ${chapter}`
+                ? "text-accent"
+                : "text-muted-foreground"
+            }`}
+            aria-label="Listen to chapter"
+            title="Listen to chapter"
+          >
+            <Headphones size={20} />
+          </button>
+          <button
             onClick={() => setZenMode(!zenMode)}
             className="p-2 rounded-lg hover:bg-secondary transition-colors text-muted-foreground"
             aria-label={zenMode ? "Exit zen mode" : "Enter zen mode"}
@@ -348,6 +376,7 @@ const BibleReader = () => {
               const key = verseKey(verse.number);
               const highlight = highlights[key];
               const isActive = activeVerse === verse.number;
+              const bookmarked = isBookmarked(currentBook.name, chapter, verse.number);
               return (
                 <span key={`${currentBook.name}-${chapter}-${verse.number}`} className="relative">
                   <motion.span
@@ -364,10 +393,14 @@ const BibleReader = () => {
                     }`}
                   >
                     <sup className="verse-number">{verse.number}</sup>
-                    {verse.text}{" "}
+                    {verse.text}
+                    {bookmarked && (
+                      <BookmarkIcon size={10} className="inline-block ml-0.5 text-accent fill-accent align-baseline" />
+                    )}
+                    {" "}
                   </motion.span>
 
-                  {/* Highlight color picker popover */}
+                  {/* Verse action popover */}
                   <AnimatePresence>
                     {isActive && (
                       <motion.span
@@ -398,6 +431,47 @@ const BibleReader = () => {
                             <X size={10} />
                           </button>
                         )}
+                        <span className="w-px h-3.5 bg-border mx-0.5" />
+                        <button
+                          onClick={() => {
+                            if (bookmarked) {
+                              const id = `${currentBook.name}-${chapter}-${verse.number}`;
+                              removeBookmark(id);
+                              toast("Bookmark removed");
+                            } else {
+                              addBookmark({
+                                book: currentBook.name,
+                                chapter,
+                                verse: verse.number,
+                                text: verse.text,
+                                note: "",
+                              });
+                              toast.success("Verse bookmarked", { description: "Add a note in Bookmarks" });
+                            }
+                            setActiveVerse(null);
+                          }}
+                          className={`p-1 rounded-full transition-colors ${
+                            bookmarked ? "text-accent" : "text-muted-foreground hover:text-foreground"
+                          }`}
+                          aria-label="Bookmark"
+                          title={bookmarked ? "Remove bookmark" : "Bookmark verse"}
+                        >
+                          <BookmarkIcon size={11} className={bookmarked ? "fill-accent" : ""} />
+                        </button>
+                        <button
+                          onClick={() => {
+                            setShareTarget({
+                              reference: `${currentBook.name} ${chapter}:${verse.number}`,
+                              text: verse.text,
+                            });
+                            setActiveVerse(null);
+                          }}
+                          className="p-1 rounded-full text-muted-foreground hover:text-foreground"
+                          aria-label="Share verse"
+                          title="Share as image"
+                        >
+                          <Share2 size={11} />
+                        </button>
                       </motion.span>
                     )}
                   </AnimatePresence>
@@ -439,15 +513,29 @@ const BibleReader = () => {
     </div>
   );
 
+  const shareDialog = (
+    <ShareVerseDialog
+      open={!!shareTarget}
+      onClose={() => setShareTarget(null)}
+      verse={shareTarget}
+    />
+  );
+
   if (zenMode) {
     return (
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="zen-mode" ref={scrollRef}>
         {content}
+        {shareDialog}
       </motion.div>
     );
   }
 
-  return <div className="p-4 sm:p-8" ref={scrollRef}>{content}</div>;
+  return (
+    <div className="p-4 sm:p-8" ref={scrollRef}>
+      {content}
+      {shareDialog}
+    </div>
+  );
 };
 
 export default BibleReader;

@@ -1,4 +1,4 @@
-import { BookOpen, Heart, MessageCircle, PenLine, Home, Users, Flame, Music, Star, Sun, Moon, HeartPulse } from "lucide-react";
+import { BookOpen, Heart, MessageCircle, PenLine, Home, Users, Flame, Music, Star, Sun, Moon, HeartPulse, Bookmark, Settings as SettingsIcon } from "lucide-react";
 import { useTheme } from "@/hooks/use-theme";
 
 interface AppSidebarProps {
@@ -9,6 +9,7 @@ interface AppSidebarProps {
 const navItems = [
   { id: "home", label: "Home", icon: Home },
   { id: "bible", label: "Bible", icon: BookOpen },
+  { id: "bookmarks", label: "Bookmarks", icon: Bookmark },
   { id: "prayers", label: "Prayer Wall", icon: Heart },
   { id: "live-prayer", label: "Live Prayer", icon: Flame },
   { id: "partners", label: "Prayer Partners", icon: Users },
@@ -17,6 +18,7 @@ const navItems = [
   { id: "milestones", label: "Faith Journey", icon: Star },
   { id: "chat", label: "Community", icon: MessageCircle },
   { id: "journal", label: "Journal", icon: PenLine },
+  { id: "settings", label: "Settings", icon: SettingsIcon },
 ];
 
 const AppSidebar = ({ activeSection, onNavigate }: AppSidebarProps) => {
