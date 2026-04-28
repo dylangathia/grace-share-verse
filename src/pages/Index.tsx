@@ -11,16 +11,25 @@ import WorshipShare from "@/components/WorshipShare";
 import FaithMilestones from "@/components/FaithMilestones";
 import PrayerPartners from "@/components/PrayerPartners";
 import SoulCheck from "@/components/SoulCheck";
+import Bookmarks from "@/components/Bookmarks";
+import Settings from "@/components/Settings";
+import OnboardingTour from "@/components/OnboardingTour";
+import AudioMiniPlayer from "@/components/AudioMiniPlayer";
+import { AudioBibleProvider } from "@/hooks/use-audio-bible";
+import { useNotificationScheduler } from "@/hooks/use-notification-scheduler";
 import { AnimatePresence, motion } from "framer-motion";
 
 const sectionOrder = [
   "home", "bible", "prayers", "live-prayer", "partners",
   "soul-check", "worship", "milestones", "chat", "journal",
+  "bookmarks", "settings",
 ];
 
-const Index = () => {
+const IndexInner = () => {
   const [activeSection, setActiveSection] = useState("home");
   const prevSection = useRef("home");
+
+  useNotificationScheduler();
 
   const direction = useMemo(() => {
     const prevIdx = sectionOrder.indexOf(prevSection.current);
@@ -45,6 +54,8 @@ const Index = () => {
       case "milestones": return <FaithMilestones />;
       case "partners": return <PrayerPartners />;
       case "soul-check": return <SoulCheck />;
+      case "bookmarks": return <Bookmarks />;
+      case "settings": return <Settings />;
       default: return <HomeScreen onNavigate={handleNavigate} />;
     }
   };
@@ -77,8 +88,16 @@ const Index = () => {
         </AnimatePresence>
       </main>
       <MobileBottomNav activeSection={activeSection} onNavigate={handleNavigate} />
+      <AudioMiniPlayer />
+      <OnboardingTour />
     </div>
   );
 };
+
+const Index = () => (
+  <AudioBibleProvider>
+    <IndexInner />
+  </AudioBibleProvider>
+);
 
 export default Index;
