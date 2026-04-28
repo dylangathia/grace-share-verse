@@ -376,6 +376,7 @@ const BibleReader = () => {
               const key = verseKey(verse.number);
               const highlight = highlights[key];
               const isActive = activeVerse === verse.number;
+              const bookmarked = isBookmarked(currentBook.name, chapter, verse.number);
               return (
                 <span key={`${currentBook.name}-${chapter}-${verse.number}`} className="relative">
                   <motion.span
@@ -392,10 +393,14 @@ const BibleReader = () => {
                     }`}
                   >
                     <sup className="verse-number">{verse.number}</sup>
-                    {verse.text}{" "}
+                    {verse.text}
+                    {bookmarked && (
+                      <BookmarkIcon size={10} className="inline-block ml-0.5 text-accent fill-accent align-baseline" />
+                    )}
+                    {" "}
                   </motion.span>
 
-                  {/* Highlight color picker popover */}
+                  {/* Verse action popover */}
                   <AnimatePresence>
                     {isActive && (
                       <motion.span
@@ -426,6 +431,47 @@ const BibleReader = () => {
                             <X size={10} />
                           </button>
                         )}
+                        <span className="w-px h-3.5 bg-border mx-0.5" />
+                        <button
+                          onClick={() => {
+                            if (bookmarked) {
+                              const id = `${currentBook.name}-${chapter}-${verse.number}`;
+                              removeBookmark(id);
+                              toast("Bookmark removed");
+                            } else {
+                              addBookmark({
+                                book: currentBook.name,
+                                chapter,
+                                verse: verse.number,
+                                text: verse.text,
+                                note: "",
+                              });
+                              toast.success("Verse bookmarked", { description: "Add a note in Bookmarks" });
+                            }
+                            setActiveVerse(null);
+                          }}
+                          className={`p-1 rounded-full transition-colors ${
+                            bookmarked ? "text-accent" : "text-muted-foreground hover:text-foreground"
+                          }`}
+                          aria-label="Bookmark"
+                          title={bookmarked ? "Remove bookmark" : "Bookmark verse"}
+                        >
+                          <BookmarkIcon size={11} className={bookmarked ? "fill-accent" : ""} />
+                        </button>
+                        <button
+                          onClick={() => {
+                            setShareTarget({
+                              reference: `${currentBook.name} ${chapter}:${verse.number}`,
+                              text: verse.text,
+                            });
+                            setActiveVerse(null);
+                          }}
+                          className="p-1 rounded-full text-muted-foreground hover:text-foreground"
+                          aria-label="Share verse"
+                          title="Share as image"
+                        >
+                          <Share2 size={11} />
+                        </button>
                       </motion.span>
                     )}
                   </AnimatePresence>
